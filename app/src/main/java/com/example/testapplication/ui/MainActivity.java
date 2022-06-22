@@ -1,9 +1,12 @@
-package com.example.testapplication;
+package com.example.testapplication.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 
+import com.example.testapplication.R;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
@@ -17,7 +20,7 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     private BarChart chart;
     private String title;
@@ -30,6 +33,18 @@ public class MainActivity extends AppCompatActivity {
         chart = findViewById(R.id.chart1);
 
         setBarChartProperties();
+
+        /*final Handler handler = new Handler(Looper.getMainLooper());
+
+        showProgressBar(true);
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                showProgressBar(false);
+                setBarChart();
+            }
+        }, 3000);*/
 
 
         setBarChart();
@@ -85,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         ArrayList<BarEntry> entries = new ArrayList<>();
-
 
         entries.add(new BarEntry(0, 50000));
         entries.add(new BarEntry(1, 20000));
