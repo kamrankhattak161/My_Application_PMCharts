@@ -2,9 +2,12 @@ package com.example.testapplication.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
+import android.widget.Button;
 
 import com.example.testapplication.R;
 import com.github.mikephil.charting.charts.BarChart;
@@ -24,6 +27,7 @@ public class MainActivity extends BaseActivity {
 
     private BarChart chart;
     private String title;
+    private Button buttonPlayGame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +35,7 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
 
         chart = findViewById(R.id.chart1);
+        buttonPlayGame = findViewById(R.id.btn_play_game);
 
         setBarChartProperties();
 
@@ -48,6 +53,14 @@ public class MainActivity extends BaseActivity {
 
 
         setBarChart();
+
+        buttonPlayGame.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, PlayActivity.class);
+                startActivity(intent);
+            }
+        });
 
 
 

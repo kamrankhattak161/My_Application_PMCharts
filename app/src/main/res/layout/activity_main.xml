@@ -8,12 +8,13 @@
 
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/cardview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="@color/green_50"
-        android:layout_marginTop="@dimen/margin_medium"
         android:layout_marginStart="@dimen/margin_medium"
+        android:layout_marginTop="@dimen/margin_medium"
         android:layout_marginEnd="@dimen/margin_medium"
+        app:cardBackgroundColor="@color/green_50"
         app:cardCornerRadius="@dimen/margin_small"
         app:cardElevation="@dimen/margin_small"
         app:layout_constraintEnd_toEndOf="parent"
@@ -45,6 +46,17 @@
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
+
+
+    <Button
+        android:id="@+id/btn_play_game"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_extra_large"
+        android:text="Play Game"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardview" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
