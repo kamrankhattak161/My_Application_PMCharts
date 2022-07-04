@@ -1,29 +1,47 @@
 package com.example.testapplication.util;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 
+import com.example.testapplication.ui.GameActivity;
+import com.example.testapplication.ui.MainActivity;
+import com.example.testapplication.ui.PlayActivity;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class GameView extends SurfaceView implements Runnable {
 
     private Thread thread;
-    private boolean isPlaying;
-    private  int screenX, screenY;
+    private boolean isPlaying, isGameOver = false;
+    private  int screenX, screenY, score = 0;
     private Paint paint;
+    private Bird[] birds;
+    private SharedPreferences prefs;
+    private Random random;
     private Flight flight;
     private Background background1, background2;
+    private Activity activity;
     private List<Bullet> bullets;
 
-    public GameView(Context context, int screenX, int screenY) {
-        super(context);
+    public GameView(GameActivity activity, int screenX, int screenY) {
+        super(activity);
+
+        this.activity = activity;
 
         this.screenX = screenX;
         this.screenY = screenY;
+
+        prefs = activity.getSharedPreferences("game_pmpy", Context.MODE_PRIVATE);
 
         background1 = new Background(screenX, screenY, getResources());
         background2 = new Background(screenX, screenY, getResources());
@@ -35,6 +53,20 @@ public class GameView extends SurfaceView implements Runnable {
         background2.x = screenX;
 
         paint = new Paint();
+        paint.setTextSize(128);
+        paint.setColor(Color.WHITE);
+
+        birds = new Bird[4];
+
+        for (int i = 0;i < 4;i++) {
+
+            Bird bird = new Bird(getResources());
+            birds[i] = bird;
+
+        }
+
+        random = new Random();
+
     }
 
     @Override
@@ -78,21 +110,61 @@ public class GameView extends SurfaceView implements Runnable {
 
             bullet.x += 50;
 
-            /*for (Bird bird : birds) {
-
-                if (Rect.intersects(bird.getCollisionShape(),
-                        bullet.getCollisionShape())) {
-
+            for(Bird bird : birds) {
+                if(Rect.intersects(bird.getCollisionShape(), bullet.getCollisionShape())) {
                     score++;
                     bird.x = -500;
                     bullet.x = screenX + 500;
                     bird.wasShot = true;
+                }
+            }
+
+
+
+        }
+
+        for(Bullet bullet : trash)
+            bullets.remove(bullet);
+
+
+        for (Bird bird : birds) {
+
+                bird.x -= bird.speed;
+
+                if(bird.x + bird.width < 0) {
+                    if(!bird.wasShot) {
+                        isGameOver = true;
+                        return;
+                    }
+                    int bound = 30;
+                    bird.speed = random.nextInt(bound);
+
+                    if(bird.speed < 10)
+                        bird.speed = 10;
+
+                    bird.x = screenX;
+                    bird.y = random.nextInt(screenY - bird.height);
+                    bird.wasShot = false;
+                }
+
+                /*if (Rect.intersects(bird.getCollisionShape(),
+                        bullet.getCollisionShape())) {
+                    //score++;
+                    bird.x = -500;
+                    bullet.x = screenX + 500;
+                    bird.wasShot = true;
+
+                }*/
+
+                if (Rect.intersects(bird.getCollisionShape(),
+                        flight.getCollisionShape())) {
+                    isGameOver = true;
+                    return;
 
                 }
 
-            }*/
+            }
 
-        }
 
     }
 
@@ -102,6 +174,21 @@ public class GameView extends SurfaceView implements Runnable {
             canvas.drawBitmap(background1.background, background1.x, background1.y, paint);
             canvas.drawBitmap(background2.background, background2.x, background2.y, paint);
 
+            for (Bird bird : birds)
+                canvas.drawBitmap(bird.getBird(), bird.x, bird.y, paint);
+
+            canvas.drawText(score + "", screenX/2f, 164, paint);
+
+            if(isGameOver) {
+                isPlaying = false;
+                canvas.drawBitmap(flight.getDead(), flight.x, flight.y, paint);
+                saveIfHighScore();
+                waitBeforeExiting();
+                getHolder().unlockCanvasAndPost(canvas);
+                return;
+            }
+
+
             canvas.drawBitmap(flight.getFlight(), flight.x, flight.y, paint);
 
             for (Bullet bullet : bullets)
@@ -110,6 +197,24 @@ public class GameView extends SurfaceView implements Runnable {
             getHolder().unlockCanvasAndPost(canvas);
         }
 
+    }
+
+    private void waitBeforeExiting() {
+        try {
+            Thread.sleep(3000);
+            activity.startActivity(new Intent(activity, PlayActivity.class));
+            activity.finish();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveIfHighScore() {
+        if(prefs.getInt("highscore", 0) < 0) {
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putInt("highscore", score);
+            editor.apply();
+        }
     }
 
     private void sleep() {
